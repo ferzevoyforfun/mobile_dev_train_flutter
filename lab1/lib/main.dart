@@ -21,8 +21,23 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AdvancedProfilePage extends StatelessWidget {
+// Страница теперь StatefulWidget, чтобы управлять состоянием выбора автомобиля
+class AdvancedProfilePage extends StatefulWidget {
   const AdvancedProfilePage({super.key});
+
+  @override
+  State<AdvancedProfilePage> createState() => _AdvancedProfilePageState();
+}
+
+class _AdvancedProfilePageState extends State<AdvancedProfilePage> {
+  // Состояние для выбранного автомобиля
+  String? _selectedCar;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCar = 'Tesla Model 3'; // значение по умолчанию
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +125,15 @@ class AdvancedProfilePage extends StatelessWidget {
             _buildContactItem(Icons.email, 'anna.dev@example.com'),
             _buildContactItem(Icons.phone, '+7 (999) 123-45-67'),
             _buildContactItem(Icons.location_on, 'Москва, Россия'),
+            const Divider(height: 40),
+
+            // === Любимый автомобиль ===
+            const Text(
+              'Любимый автомобиль',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            _buildCarSelector(),
             const Divider(height: 40),
 
             // === Навыки ===
@@ -204,7 +228,7 @@ class AdvancedProfilePage extends StatelessWidget {
     );
   }
 
-  // Вспомогательные методы (без использования context, кроме где нужно)
+  // === ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ===
 
   Widget _buildTag(String text) {
     return Chip(
@@ -259,8 +283,6 @@ class AdvancedProfilePage extends StatelessWidget {
       ],
     );
   }
-
-  // Методы, использующие context → принимают его как параметр
 
   Widget _buildProjectCard(
     BuildContext context,
@@ -324,6 +346,51 @@ class AdvancedProfilePage extends StatelessWidget {
         foregroundColor: Colors.blue,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
+    );
+  }
+
+  // === ВЫПАДАЮЩИЙ СПИСОК АВТОМОБИЛЕЙ ===
+  Widget _buildCarSelector() {
+    final List<String> cars = [
+      'Toyota Camry',
+      'Honda Civic',
+      'BMW X5',
+      'Mercedes-Benz C-Class',
+      'Tesla Model 3',
+      'Audi A4',
+      'Ford Mustang',
+      'Volkswagen Golf',
+      'Hyundai Tucson',
+      'Kia Sportage',
+      'Nissan Qashqai',
+      'Skoda Octavia',
+      'Lada Granta',
+      'UAZ Patriot',
+      'Renault Duster',
+      'Chevrolet Niva',
+    ];
+
+    return DropdownButton<String>(
+      value: _selectedCar,
+      items: cars.map((car) {
+        return DropdownMenuItem<String>(
+          value: car,
+          child: Text(car),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          setState(() {
+            _selectedCar = newValue;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Выбран автомобиль: $newValue')),
+          );
+        }
+      },
+      isExpanded: true,
+      underline: Container(height: 1, color: Colors.grey.shade300),
+      hint: const Text('Выберите автомобиль...'),
     );
   }
 }
