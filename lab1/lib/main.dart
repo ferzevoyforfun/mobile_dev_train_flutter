@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'sec_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +21,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
 
 // Страница теперь StatefulWidget, чтобы управлять состоянием выбора автомобиля
 class AdvancedProfilePage extends StatefulWidget {
@@ -182,6 +185,24 @@ class _AdvancedProfilePageState extends State<AdvancedProfilePage> {
               'Быстрые действия',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+
+            const SizedBox(height: 20),
+ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SecPage()),
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue,
+    minimumSize: const Size(double.infinity, 50),
+  ),
+  child: const Text(
+    'Перейти на вторую страницу',
+    style: TextStyle(fontSize: 18, color: Colors.white),
+  ),
+),
             const SizedBox(height: 12),
             Wrap(
               spacing: 12,
