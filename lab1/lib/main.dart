@@ -104,53 +104,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _loginController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  void _login() {
-    final login = _loginController.text;
-    final password = _passwordController.text;
-
-    final user = users.firstWhere(
-      (u) => u.login == login && u.password == password,
-      orElse: () => const User('', '', ''),
-    );
-
-    if (user.login.isNotEmpty) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainScreen(user: user),
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Ошибка'),
-          content: const Text('Неверный логин или пароль'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  void _guestLogin() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(
-          user: const User('guest', '', 'Гость'),
-        ),
-      ),
-    );
-  }
+class AdvancedProfilePage extends StatelessWidget {
+  const AdvancedProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -161,14 +116,76 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _loginController,
-              decoration: const InputDecoration(labelText: 'Логин'),
+            // === Аватар и основная информация ===
+            Center(
+              child: Column(
+                children: [
+                  const CircleAvatar(
+                    radius: 70,
+                    backgroundImage: NetworkImage(
+                      'https://avatars.githubusercontent.com/u/44375456',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Анна Петрова',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const Text(
+                    'Senior Flutter Developer',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildTag('Dart'),
+                      _buildTag('Flutter'),
+                      _buildTag('Firebase'),
+                      _buildTag('UI/UX'),
+                      _buildTag('Web'),
+                      _buildTag('Mobile'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Пароль'),
-              obscureText: true,
+
+            // === Статистика ===
+            const Text(
+              'Статистика',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStat('Проекты', '24'),
+                _buildStat('Клиенты', '18'),
+                _buildStat('Звёзды', '2.1K'),
+              ],
+            ),
+            const Divider(height: 40),
+
+            // === Контакты ===
+            const Text(
+              'Контакты',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            _buildContactItem(Icons.email, 'anna.dev@example.com'),
+            _buildContactItem(Icons.phone, '+7 (999) 123-45-67'),
+            _buildContactItem(Icons.location_on, 'Москва, Россия'),
+            const Divider(height: 40),
+
+            // === Навыки ===
+            const Text(
+              'Навыки',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -266,55 +283,74 @@ class CitiesScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-// Экран с достопримечательностями
-class AttractionsScreen extends StatelessWidget {
-  final City city;
-  const AttractionsScreen({super.key, required this.city});
+  // Вспомогательные методы (без использования context, кроме где нужно)
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(city.name)),
-      body: ListView.builder(
-        itemCount: city.attractions.length,
-        itemBuilder: (context, index) {
-          final attraction = city.attractions[index];
-          return Card(
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage(attraction.image),
-              ),
-              title: Text(attraction.name),
-              subtitle: Text(attraction.shortDescription),
-              trailing: const Icon(Icons.arrow_forward),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AttractionDetailScreen(attraction: attraction),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+  Widget _buildTag(String text) {
+    return Chip(
+      label: Text(text),
+      backgroundColor: Colors.blue.shade50,
+      labelStyle: const TextStyle(color: Colors.blue),
     );
   }
-}
 
-// Экран с детальной информацией
-class AttractionDetailScreen extends StatelessWidget {
-  final Attraction attraction;
-  const AttractionDetailScreen({super.key, required this.attraction});
+  Widget _buildStat(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.grey, fontSize: 14),
+        ),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(attraction.name)),
-      body: SingleChildScrollView(
+  Widget _buildContactItem(IconData icon, String text) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.blue),
+      title: Text(text),
+    );
+  }
+
+  Widget _buildSkill(String name, int percent) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text('$percent%'),
+          ],
+        ),
+        const SizedBox(height: 4),
+        LinearProgressIndicator(
+          value: percent / 100,
+          backgroundColor: Colors.grey.shade200,
+          color: Colors.blue,
+          minHeight: 6,
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  // Методы, использующие context → принимают его как параметр
+
+  Widget _buildProjectCard(
+    BuildContext context,
+    String title,
+    String desc,
+    IconData icon,
+  ) {
+    return Card(
+      elevation: 2,
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -416,6 +452,51 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // === ВЫПАДАЮЩИЙ СПИСОК АВТОМОБИЛЕЙ ===
+  Widget _buildCarSelector() {
+    final List<String> cars = [
+      'Toyota Camry',
+      'Honda Civic',
+      'BMW X5',
+      'Mercedes-Benz C-Class',
+      'Tesla Model 3',
+      'Audi A4',
+      'Ford Mustang',
+      'Volkswagen Golf',
+      'Hyundai Tucson',
+      'Kia Sportage',
+      'Nissan Qashqai',
+      'Skoda Octavia',
+      'Lada Granta',
+      'UAZ Patriot',
+      'Renault Duster',
+      'Chevrolet Niva',
+    ];
+
+    return DropdownButton<String>(
+      value: _selectedCar,
+      items: cars.map((car) {
+        return DropdownMenuItem<String>(
+          value: car,
+          child: Text(car),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          setState(() {
+            _selectedCar = newValue;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Выбран автомобиль: $newValue')),
+          );
+        }
+      },
+      isExpanded: true,
+      underline: Container(height: 1, color: Colors.grey.shade300),
+      hint: const Text('Выберите автомобиль...'),
     );
   }
 }
